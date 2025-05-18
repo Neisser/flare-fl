@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="https://i.imgur.com/6vQYSqr.png">
+</div>
+
 # Flare: Federated Learning with Blockchain and IoT Focus
 
 Flare is a Python library for simulating and implementing federated learning systems.
