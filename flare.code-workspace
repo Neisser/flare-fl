@@ -1,0 +1,34 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.defaultInterpreterPath": ".venv/bin/python",
+		"python.formatting.provider": "black",
+		"editor.formatOnSave": true,
+		"python.linting.enabled": true,
+		"python.linting.flake8Enabled": true,
+		"python.linting.ruffEnabled": true,
+
+		"python.analysis.typeCheckingMode": "basic",
+		"editor.codeActionsOnSave": {
+			"source.organizeImports": "explicit"
+		},
+		"python.linting.mypyEnabled": false, // Optional, if you prefer Ruff
+		"jupyter.enableCellToolbar": true,
+		"jupyter.askForKernelRestart": false
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-python.python",          // Official Python extension
+			"ms-python.vscode-pylance",  // Fast analysis engine
+			"ms-toolsai.jupyter",        // Support for notebooks
+			"ms-python.black-formatter", // Black formatter
+			"ms-python.isort",           // Import sorter
+			"charliermarsh.ruff",        // Ultra-fast linter
+			"ms-python.flake8"           // Linter (optional if you don't use Ruff)
+		]
+	}
+}
