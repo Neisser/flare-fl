@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "flare-fl"
 version = "0.0.1"
 authors = [
-  { name="[Neisser Villa]", email="[villa.neisser@gmail.com]" },
+    { name="Neisser Villa", email="villa.neisser@gmail.com" },
 ]
 description = "A Python library for federated learning with blockchain and IoT focus."
 readme = "README.md"
@@ -23,12 +23,10 @@ classifiers = [
     "Topic :: System :: Distributed Computing",
 ]
 keywords = ["federated learning", "blockchain", "iot", "machine learning"]
+dependencies = [
+    "pytest",
+]
 
-[project.urls] # Descomenta si tienes un repo
+[project.urls]
 "Homepage" = "https://github.com/Neisser/flare-fl"
 "Bug Tracker" = "https://github.com/Neisser/flare-fl/issues"
-
-# TODO: add dependencies here or in requirements.txt
-# dependencies = [
-#    "numpy>=1.20",
-# ]
