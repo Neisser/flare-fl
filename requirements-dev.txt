@@ -1,0 +1,5 @@
+black
+ruff
+isort
+flake8
+pytest
