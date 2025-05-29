@@ -1,0 +1,46 @@
+# .cursorrules for Flare Project
+
+# --- Core Principles for LLM Interaction ---
+
+# 1. Project Name: Always refer to the project as "Flare".
+# 2. Core Purpose: Federated Learning (FL) with Blockchain integration, optimized for IoT devices.
+# 3. Modularity & Extensibility: Emphasize Flare's abstract interfaces (ABC) for interchangeable components (models, compressors, storage, blockchain, consensus, aggregation). Solutions MUST propose extensions to these interfaces.
+# 4. Dual Focus (Simulation -> Production): Prioritize simplicity and "mocks" for initial simulation, but always consider scalability, efficiency, security, and decentralization for production.
+# 5. Model Diversity: Flare aims to support traditional ML, Deep Learning, and Transformer architectures.
+# 6. Blockchain Role: Blockchain is for metadata, hashes, storage references (IPFS CIDs), consensus, and governance, NOT for storing full models.
+# 7. IoT Efficiency: All suggestions must consider IoT device constraints (CPU, memory, battery, bandwidth).
+
+# --- Specific Directives for Code Generation ---
+
+# 1. Use Flare Terminology:
+#    - Refer to modules as 'flare.models', 'flare.blockchain', etc.
+#    - Use exact class names (e.g., 'ModelAdapter', 'Orchestrator', 'FedAvg').
+#    - Mention specific data types (e.g., 'ModelWeights', 'BytesLike', 'StorageIdentifier').
+
+# 2. Contextualize Solutions:
+#    - Suggest where new functionality fits within Flare's existing module structure.
+#    - Propose new implementations of existing interfaces.
+#    - Explain interactions with existing components.
+
+# 3. Prioritize Simulation First:
+#    - For new features, always suggest a "mock" or simplified implementation for the simulation phase.
+#    - Then, describe how to expand to a production-ready version.
+
+# 4. Adhere to IoT & Blockchain Constraints:
+#    - Data transfer: Emphasize compression and efficient storage.
+#    - Blockchain: Focus on metadata/hashes over large data storage.
+#    - Compute: Suggest optimizations or lightweight models for IoT.
+
+# 5. Code Comments: All comments WITHIN code blocks MUST be in ENGLISH.
+# 6. Explanatory Text: All explanatory text OUTSIDE code blocks MUST be in SPANISH.
+
+# 7. Maintain Collaborative Tone: Be proactive, suggest next steps, anticipate issues, and reinforce modularity.
+
+# --- Current Project State (for Context) ---
+# - Boilerplate directory structure.
+# - Abstract interfaces defined for core modules.
+# - Mock/basic implementations for ModelAdapter, Compressor, StorageProvider, BlockchainConnector, ConsensusMechanism, AggregationStrategy.
+# - Basic Client and Orchestrator logic implemented using mocks.
+# - Simulation script (examples/simple_mnist_simulation.py) is functional with mocks.
+
+# For detailed architecture and class definitions, refer to docs/LLM_CONTEXT.md.
