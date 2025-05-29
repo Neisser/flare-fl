@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from flare.core import FlareConfig, RoundContext
 
-from .mi_aggregation_strategy import MIAggregationStrategy
+from .aggregation_strategies import MIAggregationStrategy
 from .orchestrator import Orchestrator
 
 

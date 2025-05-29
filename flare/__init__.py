@@ -23,14 +23,13 @@ from .compression import (
     ZlibCompressor,
 )
 from .core import FlareConfig, FlareNode, RoundContext
-from .federation import (
-    AggregationStrategy,
-    Client,
-    FedAvg,
-    FederatedClient,
+from .federation import FederatedClient, Orchestrator
+from .federation.aggregation_strategies.fedavg_strategy import FedAvg
+from .federation.aggregation_strategies.mi_aggregation_strategy import (
     MIAggregationStrategy,
-    Orchestrator,
 )
+from .federation.aggregation_strategies.strategies import AggregationStrategy
+from .federation.client import Client
 from .models import (
     EvalData,
     Metrics,

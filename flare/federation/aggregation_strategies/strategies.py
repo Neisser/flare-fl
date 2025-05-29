@@ -14,7 +14,7 @@ class AggregationStrategy(ABC):
         # For weighted averaging, we can use client data sizes
         client_data_sizes: Optional[List[int]] = None,
         # For strategies that need it, we can pass the previous global model weights
-        previous_global_weights: Optional[ModelWeights] = None
+        previous_global_weights: Optional[ModelWeights] = None,
     ) -> ModelWeights:
         """
         Aggregates local model updates to produce a new global model's weights.
