@@ -2,17 +2,19 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict
 
 # Placeholder types for model data, weights, etc.
-ModelWeights = Any # May also be a list of numpy arrays or pyTorch/TF tensors, etc.
-ModelInstance = Any # Real instance of the model (e.g., a PyTorch nn.Module object).
+ModelWeights = Any  # May also be a list of numpy arrays or pyTorch/TF tensors, etc.
+ModelInstance = Any  # Real instance of the model (e.g., a PyTorch nn.Module object).
 TrainData = Any
 EvalData = Any
 Metrics = Dict[str, float]
+
 
 class ModelAdapter(ABC):
     """
     Abstract base class for model adapters.
     Provides a common interface for interacting with different ML frameworks.
     """
+
     def __init__(self, model_instance: ModelInstance):
         self.model = model_instance
 
@@ -27,7 +29,9 @@ class ModelAdapter(ABC):
         pass
 
     @abstractmethod
-    def train(self, data: TrainData, epochs: int, learning_rate: float, **kwargs) -> Dict[str, Any]:
+    def train(
+        self, data: TrainData, epochs: int, learning_rate: float, **kwargs
+    ) -> Dict[str, Any]:
         """
         Trains the model on the given data.
         Returns a dictionary with training history (e.g., loss).

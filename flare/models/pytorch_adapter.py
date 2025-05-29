@@ -46,10 +46,19 @@ class PyTorchModelAdapter(ModelAdapter):
         """
         if isinstance(weights, dict):
             # Create a state dict and load it
-            state_dict = {
-                name: weight.to(self.device) if hasattr(weight, "to") else weight
-                for name, weight in weights.items()
-            }
+            state_dict = {}
+            for name, weight in weights.items():
+                if hasattr(weight, "to"):
+                    # Already a PyTorch tensor
+                    state_dict[name] = weight.to(self.device)
+                elif hasattr(weight, "shape"):
+                    # Numpy array - convert to PyTorch tensor
+                    tensor = torch.from_numpy(weight).to(self.device)
+                    state_dict[name] = tensor
+                else:
+                    # Fallback for other types
+                    state_dict[name] = weight
+
             self.model.load_state_dict(state_dict)
         else:
             raise ValueError(
@@ -72,9 +81,8 @@ class PyTorchModelAdapter(ModelAdapter):
             Dictionary with training history (losses)
         """
         self.model.train()
-
         # Setup optimizer
-        optimizer = optim.SGD(self.model.parameters(), lr=learning_rate)
+        optimizer = optim.SGD(self.model.parameters(), lr=learning_rate)  # type: ignore
         criterion = nn.CrossEntropyLoss()
 
         history = {"losses": []}

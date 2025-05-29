@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
+
 class FlareConfig:
     """
     A simple configuration class for Flare components.
     Uses a dictionary-like interface.
     """
+
     def __init__(self, initial_config: Optional[Dict[str, Any]] = None):
         self._config: Dict[str, Any] = initial_config if initial_config else {}
 
@@ -23,7 +25,7 @@ class FlareConfig:
     def all(self) -> Dict[str, Any]:
         return self._config.copy()
 
-    def copy(self) -> 'FlareConfig':
+    def copy(self) -> "FlareConfig":
         return FlareConfig(self._config.copy())
 
     def __str__(self) -> str:
@@ -35,6 +37,7 @@ class FlareNode(ABC):
     Abstract base class for any participating node in the Flare network
     (e.g., Client, Orchestrator).
     """
+
     def __init__(self, node_id: str, config: FlareConfig):
         self.node_id = node_id
         self.config = config
@@ -54,10 +57,20 @@ class RoundContext:
     """
     Carries context information for a specific federated learning round.
     """
-    def __init__(self, round_number: int, global_model_version: Optional[Any] = None):
+
+    def __init__(
+        self,
+        round_number: int,
+        global_model_version: Optional[Any] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
         self.round_number = round_number
-        self.global_model_version = global_model_version # Could be a hash, CID, or version number
-        self.metadata: Dict[str, Any] = {} # For any other round-specific data
+        self.global_model_version = (
+            global_model_version  # Could be a hash, CID, or version number
+        )
+        self.metadata: Dict[str, Any] = (
+            metadata if metadata is not None else {}
+        )  # For any other round-specific data
 
     def set_metadata(self, key: str, value: Any):
         self.metadata[key] = value
@@ -66,6 +79,8 @@ class RoundContext:
         return self.metadata.get(key, default)
 
     def __str__(self) -> str:
-        return (f"RoundContext(round={self.round_number}, "
-                f"model_version={self.global_model_version}, "
-                f"metadata={self.metadata})")
+        return (
+            f"RoundContext(round={self.round_number}, "
+            f"model_version={self.global_model_version}, "
+            f"metadata={self.metadata})"
+        )

@@ -27,6 +27,7 @@ from .federation import (
     Client,
     FedAvg,
     FederatedClient,
+    MIAggregationStrategy,
     Orchestrator,
 )
 from .models import (
@@ -77,4 +78,5 @@ __all__ = [
     "StorageData",
     "StorageIdentifier",
     "StorageProvider",
+    "MIAggregationStrategy",
 ]

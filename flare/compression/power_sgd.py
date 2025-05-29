@@ -65,8 +65,13 @@ class PowerSGDCompressor(Compressor):
                 weights.items() if isinstance(weights, dict) else enumerate(weights)
             ):
                 # Convert PyTorch tensor to numpy array for processing
+                original_dtype = None
+                original_device = None
+
                 if hasattr(weight, "detach"):
-                    # PyTorch tensor
+                    # PyTorch tensor - store metadata for reconstruction
+                    original_dtype = str(weight.dtype)
+                    original_device = str(weight.device)
                     weight_array = weight.detach().cpu().numpy()
                 else:
                     # Assume it's already a numpy array
@@ -95,43 +100,64 @@ class PowerSGDCompressor(Compressor):
                         else 1
                     )
 
-                    if (
-                        compression_rate >= self.min_compression_rate
-                        and min(m, n) > self.rank
-                    ):
+                    if compression_rate >= self.min_compression_rate:
                         # Apply PowerSGD compression
                         P, Q = self._power_sgd_compress(matrix)
-                        compressed_weights[name] = {
+                        compressed_data = {
                             "type": "powersgd",
                             "P": P,
                             "Q": Q,
                             "original_shape": original_shape,
                             "rank": self.rank,
                         }
+
+                        # Add original tensor metadata if available
+                        if original_dtype is not None:
+                            compressed_data["original_dtype"] = original_dtype
+                        if original_device is not None:
+                            compressed_data["original_device"] = original_device
+
+                        compressed_weights[name] = compressed_data
                         total_compressed_params += P.size + Q.size
                         print(
                             f"  {name}: {original_shape} -> rank-{self.rank} (rate: {compression_rate:.2f}x)"
                         )
                     else:
                         # Keep original if compression not beneficial
-                        compressed_weights[name] = {
+                        compressed_data = {
                             "type": "original",
                             "data": weight_array,
                             "original_shape": original_shape,
                         }
+
+                        # Add original tensor metadata if available
+                        if original_dtype is not None:
+                            compressed_data["original_dtype"] = original_dtype
+                        if original_device is not None:
+                            compressed_data["original_device"] = original_device
+
+                        compressed_weights[name] = compressed_data
                         total_compressed_params += original_params
                         print(
                             f"  {name}: {original_shape} -> kept original (low compression benefit)"
                         )
                 else:
                     # Keep scalars, 1D tensors, or non-numeric data as-is
-                    compressed_weights[name] = {
+                    compressed_data = {
                         "type": "original",
                         "data": weight_array,
                         "original_shape": weight_array.shape
                         if hasattr(weight_array, "shape")
                         else None,
                     }
+
+                    # Add original tensor metadata if available
+                    if original_dtype is not None:
+                        compressed_data["original_dtype"] = original_dtype
+                    if original_device is not None:
+                        compressed_data["original_device"] = original_device
+
+                    compressed_weights[name] = compressed_data
                     if hasattr(weight_array, "size"):
                         total_compressed_params += weight_array.size
                         total_original_params += weight_array.size
@@ -185,18 +211,64 @@ class PowerSGDCompressor(Compressor):
 
                     # Reshape back to original dimensions
                     reconstructed_weight = reconstructed_matrix.reshape(original_shape)
+
+                    # Check if we should convert back to PyTorch tensor
+                    if (
+                        "original_dtype" in weight_info
+                        and "original_device" in weight_info
+                    ):
+                        # Convert back to PyTorch tensor with original dtype and device
+                        import torch
+
+                        # Convert numpy array dtype
+                        dtype_map = {
+                            "torch.float32": np.float32,
+                            "torch.float64": np.float64,
+                            "torch.int32": np.int32,
+                            "torch.int64": np.int64,
+                        }
+                        numpy_dtype = dtype_map.get(
+                            weight_info["original_dtype"], np.float32
+                        )
+                        if isinstance(reconstructed_weight, np.ndarray):
+                            reconstructed_weight = torch.from_numpy(
+                                reconstructed_weight.astype(numpy_dtype)
+                            )
+                            if weight_info["original_device"] != "cpu":
+                                reconstructed_weight = reconstructed_weight.to(
+                                    weight_info["original_device"]
+                                )
                     reconstructed_weights[name] = reconstructed_weight
 
                 elif weight_info["type"] == "original":
-                    # Use original uncompressed data
-                    reconstructed_weights[name] = weight_info["data"]
+                    data_val = weight_info["data"]
+                    if (
+                        "original_dtype" in weight_info
+                        and "original_device" in weight_info
+                    ):
+                        import torch
+
+                        dtype_map = {
+                            "torch.float32": np.float32,
+                            "torch.float64": np.float64,
+                            "torch.int32": np.int32,
+                            "torch.int64": np.int64,
+                        }
+                        numpy_dtype = dtype_map.get(
+                            weight_info["original_dtype"], np.float32
+                        )
+                        if isinstance(data_val, np.ndarray):
+                            data_val = torch.from_numpy(data_val.astype(numpy_dtype))
+                            if weight_info["original_device"] != "cpu":
+                                data_val = data_val.to(weight_info["original_device"])
+                    reconstructed_weights[name] = data_val
                 else:
                     print(
                         f"PowerSGDCompressor: Unknown compression type: {weight_info['type']}"
                     )
                     reconstructed_weights[name] = weight_info["data"]
 
-            # Serialize reconstructed weights
+            # Serialize reconstructed weights (always return bytes)
             decompressed_data = pickle.dumps(reconstructed_weights)
             print(
                 f"PowerSGDCompressor: decompressed to {len(decompressed_data)} bytes."

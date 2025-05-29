@@ -5,15 +5,14 @@ from .providers import StorageData, StorageIdentifier, StorageProvider
 
 class InMemoryStorageProvider(StorageProvider):
     """Stores data in an in-memory dictionary. Useful for simulations."""
+
     def __init__(self):
         self._store: Dict[StorageIdentifier, StorageData] = {}
         print("InMemoryStorageProvider initialized.")
 
     def put(
-            self,
-            identifier: StorageIdentifier,
-            data: StorageData
-            ) -> Optional[StorageIdentifier]:
+        self, identifier: StorageIdentifier, data: StorageData
+    ) -> Optional[StorageIdentifier]:
         print(f"InMemoryStorage: put '{identifier}' ({len(data)} bytes).")
         self._store[identifier] = data
         return identifier
