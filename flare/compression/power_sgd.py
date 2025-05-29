@@ -241,27 +241,39 @@ class PowerSGDCompressor(Compressor):
                     reconstructed_weights[name] = reconstructed_weight
 
                 elif weight_info["type"] == "original":
-                    data_val = weight_info["data"]
+                    # Use original uncompressed data
+                    original_data = weight_info["data"]
+
+                    # Check if we should convert back to PyTorch tensor
                     if (
                         "original_dtype" in weight_info
                         and "original_device" in weight_info
                     ):
+                        # Convert back to PyTorch tensor with original dtype and device
                         import torch
 
-                        dtype_map = {
-                            "torch.float32": np.float32,
-                            "torch.float64": np.float64,
-                            "torch.int32": np.int32,
-                            "torch.int64": np.int64,
-                        }
-                        numpy_dtype = dtype_map.get(
-                            weight_info["original_dtype"], np.float32
-                        )
-                        if isinstance(data_val, np.ndarray):
-                            data_val = torch.from_numpy(data_val.astype(numpy_dtype))
-                            if weight_info["original_device"] != "cpu":
-                                data_val = data_val.to(weight_info["original_device"])
-                    reconstructed_weights[name] = data_val
+                        if not isinstance(original_data, torch.Tensor):
+                            # Only convert if it's a numpy array
+                            if isinstance(original_data, np.ndarray):
+                                # Convert numpy array dtype
+                                dtype_map = {
+                                    "torch.float32": np.float32,
+                                    "torch.float64": np.float64,
+                                    "torch.int32": np.int32,
+                                    "torch.int64": np.int64,
+                                }
+                                numpy_dtype = dtype_map.get(
+                                    weight_info["original_dtype"], np.float32
+                                )
+                                original_data = torch.from_numpy(
+                                    original_data.astype(numpy_dtype)
+                                )
+                                if weight_info["original_device"] != "cpu":
+                                    original_data = original_data.to(
+                                        weight_info["original_device"]
+                                    )
+
+                    reconstructed_weights[name] = original_data
                 else:
                     print(
                         f"PowerSGDCompressor: Unknown compression type: {weight_info['type']}"

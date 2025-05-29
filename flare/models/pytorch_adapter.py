@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
+from torch.optim.sgd import SGD
 
 from .adapters import EvalData, Metrics, ModelAdapter, ModelWeights, TrainData
 
@@ -82,7 +82,7 @@ class PyTorchModelAdapter(ModelAdapter):
         """
         self.model.train()
         # Setup optimizer
-        optimizer = optim.SGD(self.model.parameters(), lr=learning_rate)  # type: ignore
+        optimizer = SGD(self.model.parameters(), lr=learning_rate)
         criterion = nn.CrossEntropyLoss()
 
         history = {"losses": []}

@@ -12,6 +12,7 @@ from flare.blockchain import (
     TransactionPayload,
     TransactionReceipt,
 )
+from flare.consensus import VRFConsensus
 
 from .compression import (
     BytesLike,
@@ -79,4 +80,5 @@ __all__ = [
     "StorageIdentifier",
     "StorageProvider",
     "MIAggregationStrategy",
+    "VRFConsensus",
 ]

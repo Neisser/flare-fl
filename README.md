@@ -22,14 +22,21 @@
 - **MaliciousClient**: Cliente de prueba que simula diferentes tipos de ataques (ruido, aleatorio, opuesto)
 - **Robustez demostrada**: FL resiliente ante clientes comprometidos con filtrado inteligente
 
-### 🎯 Algoritmo de Mutual Information (FASE 2)
+### ✅ FASE 3 - Completada: VRF Consensus
 
-La estrategia `MIAggregationStrategy` implementa:
+- **VRFConsensus**: Mecanismo de consenso basado en Verifiable Random Function para selección de comité
+- **Selección de comité**: Selección verificable y determinista de validadores usando VRF
+- **Validación por comité**: Validación descentralizada de modelos agregados con votación
+- **Tolerancia bizantina**: Resistencia a fallas y ataques mediante consenso distribuido
 
-1. **Cálculo de Firmas de Modelo**: Extrae estadísticas de pesos y pseudo-predicciones
-2. **MI Pairwise**: Computa Mutual Information entre firmas de modelos usando `sklearn`
-3. **Detección de Outliers**: Identifica modelos con patrones de MI anómalos
-4. **Agregación Filtrada**: Solo agrega actualizaciones de clientes confiables
+### 🎯 Algoritmo VRF Consensus (FASE 3)
+
+La estrategia `VRFConsensus` implementa:
+
+1. **Selección VRF**: Genera comité de validación usando función aleatoria verificable
+2. **Propuesta de validación**: Crea propuestas para validar modelos agregados
+3. **Votación del comité**: Miembros del comité votan independientemente
+4. **Consenso umbral**: Aprueba/rechaza según umbral mínimo de acuerdo
 
 ## 📦 Instalación
 
@@ -100,6 +107,45 @@ aggregated_weights = mi_strategy.aggregate(
 )
 ```
 
+### Ejemplo FASE 3 - VRF Consensus
+
+```python
+from flare import VRFConsensus
+
+# Configurar consenso VRF
+vrf_consensus = VRFConsensus(
+    committee_size=5,             # Tamaño del comité
+    min_committee_threshold=0.6,  # 60% de acuerdo mínimo
+    vrf_seed="demo_seed"          # Semilla para reproducibilidad
+)
+
+# Seleccionar comité para validación
+committee = vrf_consensus.select_committee(
+    available_nodes=client_list,
+    round_number=round_num
+)
+
+# Proponer validación de modelo
+proposal_id = vrf_consensus.propose_decision(
+    proposal_data={
+        "round_number": round_num,
+        "model_hash": model_hash,
+        "validation_type": "aggregated_model"
+    },
+    proposer_id="orchestrator"
+)
+
+# Votar en el comité
+for member_id in committee:
+    validation_score = validate_model(aggregated_weights)
+    vote = validation_score > threshold
+    vrf_consensus.vote(proposal_id, member_id, vote)
+
+# Obtener resultado del consenso
+result = vrf_consensus.get_consensus_result(proposal_id)
+model_approved = result["result"] == "approved"
+```
+
 ### Ejecutar Simulaciones
 
 ```bash
@@ -108,6 +154,9 @@ python examples/simple_simulation.py
 
 # FASE 2: Agregación con MI + Clientes maliciosos
 python examples/phase2_mi_simulation.py
+
+# FASE 3: VRF Consensus + Validación por comité
+python examples/phase3_vrf_simulation.py
 ```
 
 ## 🏗️ Arquitectura Modular
@@ -118,33 +167,35 @@ python examples/phase2_mi_simulation.py
 - **`flare.models`**: Adaptadores de modelos (`ModelAdapter`, `PyTorchModelAdapter`)
 - **`flare.compression`**: Compresores (`PowerSGDCompressor`, `GzipCompressor`)
 - **`flare.federation`**: Lógica FL (`FederatedClient`, `Orchestrator`, `MIAggregationStrategy`)
+- **`flare.consensus`**: Mecanismos de consenso (`VRFConsensus`)
 - **`flare.blockchain`**: Conectores blockchain (`MockChainConnector`)
 - **`flare.storage`**: Proveedores de almacenamiento (`InMemoryStorageProvider`)
 
-### Interfaces Clave - FASE 2
+### Interfaces Clave - FASE 3
 
 ```python
-# Estrategia de agregación con MI
-class MIAggregationStrategy(AggregationStrategy):
-    def aggregate(self, local_model_updates, client_data_sizes=None, 
-                  previous_global_weights=None, **kwargs) -> ModelWeights:
-        # Filtrar modelos maliciosos usando MI
-        trusted_indices = self._filter_malicious_updates(
-            model_updates, test_data, global_weights
-        )
-        # Agregar solo actualizaciones confiables
-        return self._weighted_average(trusted_updates, data_sizes)
+# Consenso VRF para validación distribuida
+class VRFConsensus(ConsensusMechanism):
+    def select_committee(self, available_nodes, round_number, **kwargs) -> List[str]:
+        # Selección determinista de comité usando VRF
+        
+    def propose_decision(self, proposal_data, proposer_id) -> str:
+        # Crear propuesta para validación del comité
+        
+    def vote(self, proposal_id, voter_id, vote, **kwargs) -> bool:
+        # Votar en propuesta (solo miembros del comité)
+        
+    def get_consensus_result(self, proposal_id) -> Optional[Dict]:
+        # Obtener resultado final del consenso
 
-# Cliente malicioso para pruebas
-class MaliciousClient(FederatedClient):
-    def train_local(self, round_context, epochs, learning_rate):
-        # Simular diferentes tipos de ataques
-        if self.malicious_type == "noise":
-            # Agregar ruido a actualizaciones legítimas
-        elif self.malicious_type == "random":
-            # Enviar pesos completamente aleatorios
-        elif self.malicious_type == "opposite":
-            # Invertir dirección de actualizaciones
+# Orchestrator mejorado con VRF
+class VRFOrchestrator(Orchestrator):
+    def orchestrate_round(self, round_number, participating_clients):
+        # 1. Selección VRF de comité
+        # 2. Entrenamiento local estándar
+        # 3. Agregación MI (Fase 2)
+        # 4. Validación por comité
+        # 5. Consenso y actualización
 ```
 
 ## 🧪 Validación y Pruebas
@@ -161,31 +212,41 @@ class MaliciousClient(FederatedClient):
 - ✅ Detección automática de ataques de ruido y aleatorios
 - ✅ Filtrado exitoso de contribuciones maliciosas
 
+### FASE 3 - Validación de Consenso
+- ✅ Test de selección VRF independiente
+- ✅ Test de votación y consenso por comité
+- ✅ Simulación VRF-FL completa con validación distribuida
+- ✅ Integración exitosa de las 3 fases (Compresión + MI + VRF)
+
 ```bash
 # Ejecutar todas las pruebas
 python examples/simple_simulation.py        # FASE 1
 python examples/phase2_mi_simulation.py     # FASE 2
+python examples/phase3_vrf_simulation.py    # FASE 3
 
-# Salida esperada FASE 2:
-# 🎉 ALL PHASE 2 TESTS PASSED!
-# ✅ MI-based aggregation successfully filtered malicious clients
+# Salida esperada FASE 3:
+# 🎊 ALL PHASE 3 TESTS PASSED!
+# ✅ VRF consensus successfully integrated with FL pipeline
+# ✅ Committee-based validation working correctly
+# ✅ Decentralized decision making functional
 ```
 
 ## 📋 Próximas Fases
 
-### FASE 3 - Consenso VRF
-- Implementar `VRFConsensus` para selección de comité
-- Votación de modelos en blockchain
-- Consenso verificable y descentralizado
-
 ### FASE 4 - Almacenamiento IPFS
 - `IPFSStorageProvider` para almacenamiento distribuido real
 - Integración con CIDs para referencias de modelo
+- Descentralización completa del almacenamiento
 
 ### FASE 5 - Blockchain Real
 - `EthereumConnector` con `web3.py`
 - Contratos inteligentes para FL
 - Producción en mainnet/testnet
+
+### FASE 6 - Optimización IoT
+- Algoritmos específicos para dispositivos con recursos limitados
+- Compresión adaptativa según capacidad del dispositivo
+- Protocolos de comunicación eficientes
 
 ## 🤝 Contribución
 
@@ -207,4 +268,4 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ---
 
-**Flare** - Entrenamiento Federado robusto y eficiente para la era IoT 🌟
+**Flare** - Entrenamiento Federado robusto, eficiente y descentralizado para la era IoT 🌟
