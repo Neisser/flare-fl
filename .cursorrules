@@ -21,6 +21,7 @@
 #    - Suggest where new functionality fits within Flare's existing module structure.
 #    - Propose new implementations of existing interfaces.
 #    - Explain interactions with existing components.
+#    - Be consistent with the solutions offered vs the current code and logic.
 
 # 3. Prioritize Simulation First:
 #    - For new features, always suggest a "mock" or simplified implementation for the simulation phase.
