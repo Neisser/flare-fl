@@ -1,70 +1,80 @@
 """
 Flare: Federated Learning with Blockchain and IoT Focus
 """
+
 __version__ = "0.0.1"
 
 from flare.blockchain import (
-                              BlockchainConnector,
-                              ConsensusMechanism,
-                              MockChainConnector,
-                              MockPoAConsensus,
-                              TransactionPayload,
-                              TransactionReceipt,
+    BlockchainConnector,
+    ConsensusMechanism,
+    MockChainConnector,
+    MockPoAConsensus,
+    TransactionPayload,
+    TransactionReceipt,
 )
 
 from .compression import (
-                              BytesLike,
-                              Compressor,
-                              GzipCompressor,
-                              NoCompression,
-                              ZlibCompressor,
+    BytesLike,
+    Compressor,
+    GzipCompressor,
+    NoCompression,
+    PowerSGDCompressor,
+    ZlibCompressor,
 )
 from .core import FlareConfig, FlareNode, RoundContext
-from .federation import AggregationStrategy, Client, FedAvg, Orchestrator
+from .federation import (
+    AggregationStrategy,
+    Client,
+    FedAvg,
+    FederatedClient,
+    Orchestrator,
+)
 from .models import (
-                              EvalData,
-                              Metrics,
-                              MockModelAdapter,
-                              ModelAdapter,
-                              ModelWeights,
-                              TrainData,
+    EvalData,
+    Metrics,
+    MockModelAdapter,
+    ModelAdapter,
+    ModelWeights,
+    TrainData,
 )
 from .storage import (
-                              InMemoryStorageProvider,
-                              StorageData,
-                              StorageIdentifier,
-                              StorageProvider,
+    InMemoryStorageProvider,
+    StorageData,
+    StorageIdentifier,
+    StorageProvider,
 )
 
 print("Initializing Flare library...")  # Temp, just to show the import is working
 
 __all__ = [
-    'BlockchainConnector',
-    'ConsensusMechanism',
-    'MockChainConnector',
-    'MockPoAConsensus',
-    'TransactionPayload',
-    'TransactionReceipt',
-    'BytesLike',
-    'Compressor',
-    'GzipCompressor',
-    'NoCompression',
-    'ZlibCompressor',
-    'FlareConfig',
-    'FlareNode',
-    'RoundContext',
-    'AggregationStrategy',
-    'FedAvg',
-    'Client',
-    'Orchestrator',
-    'EvalData',
-    'Metrics',
-    'MockModelAdapter',
-    'ModelAdapter',
-    'ModelWeights',
-    'TrainData',
-    'InMemoryStorageProvider',
-    'StorageData',
-    'StorageIdentifier',
-    'StorageProvider'
+    "BlockchainConnector",
+    "ConsensusMechanism",
+    "MockChainConnector",
+    "MockPoAConsensus",
+    "TransactionPayload",
+    "TransactionReceipt",
+    "BytesLike",
+    "Compressor",
+    "GzipCompressor",
+    "NoCompression",
+    "PowerSGDCompressor",
+    "ZlibCompressor",
+    "FlareConfig",
+    "FlareNode",
+    "RoundContext",
+    "AggregationStrategy",
+    "FedAvg",
+    "Client",
+    "FederatedClient",
+    "Orchestrator",
+    "EvalData",
+    "Metrics",
+    "MockModelAdapter",
+    "ModelAdapter",
+    "ModelWeights",
+    "TrainData",
+    "InMemoryStorageProvider",
+    "StorageData",
+    "StorageIdentifier",
+    "StorageProvider",
 ]
