@@ -3,9 +3,68 @@ Flare: Federated Learning with Blockchain and IoT Focus
 """
 __version__ = "0.0.1"
 
-# TODO: expose the main classes and functions for easy access
-# from .core.base_classes import FlareConfig
-# from .federation.orchestrator import Orchestrator
-# from .federation.client import Client
+from flare.blockchain import (
+                              BlockchainConnector,
+                              ConsensusMechanism,
+                              MockChainConnector,
+                              MockPoAConsensus,
+                              TransactionPayload,
+                              TransactionReceipt,
+)
 
-print("Initializing Flare library...") # Temp, just to show the import is working
+from .compression import (
+                              BytesLike,
+                              Compressor,
+                              GzipCompressor,
+                              NoCompression,
+                              ZlibCompressor,
+)
+from .core import FlareConfig, FlareNode, RoundContext
+from .federation import AggregationStrategy, Client, FedAvg, Orchestrator
+from .models import (
+                              EvalData,
+                              Metrics,
+                              MockModelAdapter,
+                              ModelAdapter,
+                              ModelWeights,
+                              TrainData,
+)
+from .storage import (
+                              InMemoryStorageProvider,
+                              StorageData,
+                              StorageIdentifier,
+                              StorageProvider,
+)
+
+print("Initializing Flare library...")  # Temp, just to show the import is working
+
+__all__ = [
+    'BlockchainConnector',
+    'ConsensusMechanism',
+    'MockChainConnector',
+    'MockPoAConsensus',
+    'TransactionPayload',
+    'TransactionReceipt',
+    'BytesLike',
+    'Compressor',
+    'GzipCompressor',
+    'NoCompression',
+    'ZlibCompressor',
+    'FlareConfig',
+    'FlareNode',
+    'RoundContext',
+    'AggregationStrategy',
+    'FedAvg',
+    'Client',
+    'Orchestrator',
+    'EvalData',
+    'Metrics',
+    'MockModelAdapter',
+    'ModelAdapter',
+    'ModelWeights',
+    'TrainData',
+    'InMemoryStorageProvider',
+    'StorageData',
+    'StorageIdentifier',
+    'StorageProvider'
+]
