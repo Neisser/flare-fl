@@ -1,5 +1,14 @@
 from typing import Any, Dict
-from .adapters import ModelAdapter, ModelInstance, ModelWeights, TrainData, EvalData, Metrics
+
+from .adapters import (
+    EvalData,
+    Metrics,
+    ModelAdapter,
+    ModelInstance,
+    ModelWeights,
+    TrainData,
+)
+
 
 class MockModelAdapter(ModelAdapter):
     """
@@ -14,7 +23,7 @@ class MockModelAdapter(ModelAdapter):
 
     def get_weights(self) -> ModelWeights:
         print("MockModelAdapter: get_weights called.")
-        return self._weights.copy() # Returns a copy of the weights to avoid external modifications.
+        return self._weights.copy()  # Returns a copy of the weights to avoid external modifications.
 
     def set_weights(self, weights: ModelWeights) -> None:
         print(f"MockModelAdapter: set_weights called with {weights}.")
@@ -25,10 +34,10 @@ class MockModelAdapter(ModelAdapter):
     def train(self, data: TrainData, epochs: int, learning_rate: float, **kwargs) -> Dict[str, Any]:
         print(f"MockModelAdapter: train called for {epochs} epochs with lr={learning_rate} on data: {str(data)[:50]}...")
         # Simulate a simple improvement in loss based on the current weights.
-        simulated_loss = self._weights.get("param1", 1.0) * 0.8 # Reducir loss
-        self._weights["param1"] = simulated_loss # "learn" some new value
+        simulated_loss = self._weights.get("param1", 1.0) * 0.8  # Reducir loss
+        self._weights["param1"] = simulated_loss  # "learn" some new value
         print(f"MockModelAdapter: training finished, simulated new param1: {self._weights['param1']}")
-        return {"loss": [simulated_loss + 0.1, simulated_loss], "epochs": epochs} # Simple history
+        return {"loss": [simulated_loss + 0.1, simulated_loss], "epochs": epochs}  # Simple history
 
     def evaluate(self, data: EvalData, **kwargs) -> Metrics:
         print(f"MockModelAdapter: evaluate called on data: {str(data)[:50]}...")
@@ -66,4 +75,3 @@ class MockModelAdapter(ModelAdapter):
         print("MockModelAdapter: deserialize_weights called.")
         import json
         return json.loads(weights_bytes.decode('utf-8'))
-        
