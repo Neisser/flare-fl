@@ -1,34 +1,51 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"python.defaultInterpreterPath": ".venv/bin/python",
-		"python.formatting.provider": "black",
-		"editor.formatOnSave": true,
-		"python.linting.enabled": true,
-		"python.linting.flake8Enabled": true,
-		"python.linting.ruffEnabled": true,
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+		// Use the virtual environment in the workspace folder
+		"editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+		
+    // Python interpreter path on Windows
+    "python.defaultInterpreterPath": ".venv\\Scripts\\python.exe",
 
-		"python.analysis.typeCheckingMode": "basic",
-		"editor.codeActionsOnSave": {
-			"source.organizeImports": "explicit"
-		},
-		"python.linting.mypyEnabled": false, // Optional, if you prefer Ruff
-		"jupyter.enableCellToolbar": true,
-		"jupyter.askForKernelRestart": false
-	},
-	"extensions": {
-		"recommendations": [
-			"ms-python.python",          // Official Python extension
-			"ms-python.vscode-pylance",  // Fast analysis engine
-			"ms-toolsai.jupyter",        // Support for notebooks
-			"ms-python.black-formatter", // Black formatter
-			"ms-python.isort",           // Import sorter
-			"charliermarsh.ruff",        // Ultra-fast linter
-			"ms-python.flake8"           // Linter (optional if you don't use Ruff)
-		]
-	}
+    // Use Black as the code formatter
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true,
+
+    // Organize imports on save (ideal if using isort or Ruff)
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+
+    // Enable linting with Flake8 and Ruff
+    "python.linting.enabled": true,
+    "python.linting.ruffEnabled": true,
+    "python.linting.mypyEnabled": false, // use Ruff for faster checks if preferred
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--ignore=E501"
+    ],
+
+    // Jupyter notebook toolbar and behavior
+    "jupyter.enableCellToolbar": true,
+    "jupyter.askForKernelRestart": false,
+
+    // Type checking level
+    "python.analysis.typeCheckingMode": "basic"
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",          // Main Python extension
+      "ms-python.vscode-pylance",  // Fast analysis engine
+      "ms-toolsai.jupyter",        // Jupyter notebook support
+      "ms-python.isort",           // Import sorter (optional if using Ruff)
+      "charliermarsh.ruff",        // Ultra-fast linter
+      "ms-python.flake8"           // Optional linter (can be skipped if using only Ruff)
+    ]
+  }
 }
