@@ -42,7 +42,7 @@ La estrategia `VRFConsensus` implementa:
 
 ```bash
 # Clonar el repositorio
-git clone <repository-url>
+git clone https://github.com/Neisser/flare-fl
 cd flarepy
 
 # Instalar dependencias (incluye scikit-learn para MI)
@@ -53,6 +53,39 @@ pip install -e .
 ```
 
 ## 🔧 Uso Rápido
+
+### Builder Pattern (Recomendado) ✨
+
+**Flare** ahora incluye un **patrón Builder** que hace la configuración mucho más limpia e intuitiva:
+
+```python
+from flare import OrchestratorBuilder, ClientBuilder
+from flare.models.pytorch_adapter import PyTorchModelAdapter
+from flare import PowerSGDCompressor, InMemoryStorageProvider
+
+# Orquestador con API fluida
+orchestrator = (
+    OrchestratorBuilder()
+    .with_model_adapter(PyTorchModelAdapter(model))
+    .with_compressor(PowerSGDCompressor(rank=4))
+    .with_storage_provider(InMemoryStorageProvider())
+    .with_rounds(num_rounds=3, clients_per_round=5)
+    .with_mi_settings(mi_threshold=0.1)  # Robust aggregation
+    .build()  # Automáticamente crea MIOrchestrator
+)
+
+# Clientes con configuración simple
+client = (
+    ClientBuilder()
+    .with_id("client_1")
+    .with_local_data((X_train, y_train))
+    .with_model_adapter(PyTorchModelAdapter(model))
+    .with_compressor(PowerSGDCompressor(rank=4))
+    .with_storage_provider(storage_provider)
+    .as_federated_client()
+    .build()
+)
+```
 
 ### Ejemplo FASE 1 - Compresión PowerSGD
 
@@ -157,6 +190,12 @@ python examples/phase2_mi_simulation.py
 
 # FASE 3: VRF Consensus + Validación por comité
 python examples/phase3_vrf_simulation.py
+
+# Builder Pattern Demo (Nuevo)
+python examples/builder_example.py
+
+# Simulación Comparativa - Demuestra Builder Pattern (Nuevo)
+python examples/simple_comparative_simulation.py
 ```
 
 ## 🏗️ Arquitectura Modular
@@ -165,107 +204,31 @@ python examples/phase3_vrf_simulation.py
 
 - **`flare.core`**: Clases base (`FlareConfig`, `FlareNode`, `RoundContext`)
 - **`flare.models`**: Adaptadores de modelos (`ModelAdapter`, `PyTorchModelAdapter`)
-- **`flare.compression`**: Compresores (`PowerSGDCompressor`, `GzipCompressor`)
-- **`flare.federation`**: Lógica FL (`FederatedClient`, `Orchestrator`, `MIAggregationStrategy`)
-- **`flare.consensus`**: Mecanismos de consenso (`VRFConsensus`)
-- **`flare.blockchain`**: Conectores blockchain (`MockChainConnector`)
-- **`flare.storage`**: Proveedores de almacenamiento (`InMemoryStorageProvider`)
+- **`flare.compression`
 
-### Interfaces Clave - FASE 3
+## 🔧 Builder Pattern - API Mejorada
+
+**Flare** incluye un patrón Builder que simplifica significativamente la configuración:
+
+### Beneficios del Builder
+
+- ✅ **API Fluida**: Encadenamiento de métodos legible
+- ✅ **Defaults Inteligentes**: Componentes opcionales con valores por defecto
+- ✅ **Validación Automática**: Errores claros para configuración faltante
+- ✅ **Extensibilidad**: Fácil agregar nuevos tipos y configuraciones
+- ✅ **Menos Código**: Reduce significativamente el boilerplate
+
+### Tipos de Orquestadores Disponibles
 
 ```python
-# Consenso VRF para validación distribuida
-class VRFConsensus(ConsensusMechanism):
-    def select_committee(self, available_nodes, round_number, **kwargs) -> List[str]:
-        # Selección determinista de comité usando VRF
-        
-    def propose_decision(self, proposal_data, proposer_id) -> str:
-        # Crear propuesta para validación del comité
-        
-    def vote(self, proposal_id, voter_id, vote, **kwargs) -> bool:
-        # Votar en propuesta (solo miembros del comité)
-        
-    def get_consensus_result(self, proposal_id) -> Optional[Dict]:
-        # Obtener resultado final del consenso
+# Básico
+basic_orch = OrchestratorBuilder().with_model_adapter(adapter).build()
 
-# Orchestrator mejorado con VRF
-class VRFOrchestrator(Orchestrator):
-    def orchestrate_round(self, round_number, participating_clients):
-        # 1. Selección VRF de comité
-        # 2. Entrenamiento local estándar
-        # 3. Agregación MI (Fase 2)
-        # 4. Validación por comité
-        # 5. Consenso y actualización
+# Con MI (Robust Aggregation)
+mi_orch = OrchestratorBuilder().with_mi_settings(mi_threshold=0.1).build()
+
+# Con VRF (Consensus Validation)
+vrf_orch = OrchestratorBuilder().with_vrf_settings(committee_size=5).build()
 ```
 
-## 🧪 Validación y Pruebas
-
-### FASE 1 - Validación de Compresión
-- ✅ Test de PowerSGD independiente
-- ✅ Verificación de cálculo de diferencias ΔW
-- ✅ Simulación federada completa con 3 clientes
-- ✅ Compresión 11.77x con error de reconstrucción < 0.1%
-
-### FASE 2 - Validación de Robustez
-- ✅ Test de MI aggregation independiente
-- ✅ Simulación con clientes honestos y maliciosos (3+2)
-- ✅ Detección automática de ataques de ruido y aleatorios
-- ✅ Filtrado exitoso de contribuciones maliciosas
-
-### FASE 3 - Validación de Consenso
-- ✅ Test de selección VRF independiente
-- ✅ Test de votación y consenso por comité
-- ✅ Simulación VRF-FL completa con validación distribuida
-- ✅ Integración exitosa de las 3 fases (Compresión + MI + VRF)
-
-```bash
-# Ejecutar todas las pruebas
-python examples/simple_simulation.py        # FASE 1
-python examples/phase2_mi_simulation.py     # FASE 2
-python examples/phase3_vrf_simulation.py    # FASE 3
-
-# Salida esperada FASE 3:
-# 🎊 ALL PHASE 3 TESTS PASSED!
-# ✅ VRF consensus successfully integrated with FL pipeline
-# ✅ Committee-based validation working correctly
-# ✅ Decentralized decision making functional
-```
-
-## 📋 Próximas Fases
-
-### FASE 4 - Almacenamiento IPFS
-- `IPFSStorageProvider` para almacenamiento distribuido real
-- Integración con CIDs para referencias de modelo
-- Descentralización completa del almacenamiento
-
-### FASE 5 - Blockchain Real
-- `EthereumConnector` con `web3.py`
-- Contratos inteligentes para FL
-- Producción en mainnet/testnet
-
-### FASE 6 - Optimización IoT
-- Algoritmos específicos para dispositivos con recursos limitados
-- Compresión adaptativa según capacidad del dispositivo
-- Protocolos de comunicación eficientes
-
-## 🤝 Contribución
-
-1. Fork el proyecto
-2. Crear rama de feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit cambios (`git commit -am 'Agregar nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Crear Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
-
-## 🔗 Enlaces Útiles
-
-- [Documentación de Arquitectura](docs/LLM_CONTEXT.md)
-- [Ejemplos](examples/)
-- [Tests](tests/)
-
----
-
-**Flare** - Entrenamiento Federado robusto, eficiente y descentralizado para la era IoT 🌟
+Consulta `flare/builder/README.md` para documentación completa del Builder Pattern.
