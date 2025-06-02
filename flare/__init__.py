@@ -14,6 +14,7 @@ from flare.blockchain import (
 )
 from flare.consensus import VRFConsensus
 
+from .builder import ClientBuilder, OrchestratorBuilder
 from .compression import (
     BytesLike,
     Compressor,
@@ -80,4 +81,7 @@ __all__ = [
     "StorageProvider",
     "MIAggregationStrategy",
     "VRFConsensus",
+    # Builder pattern
+    "OrchestratorBuilder",
+    "ClientBuilder",
 ]
