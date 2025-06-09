@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 ## 🧩 1. **Modularidad (Configurabilidad y Extensibilidad)**
 
 | Patrón                         | Aplicación                                                                              | Ejemplo en FL + Blockchain                                        |

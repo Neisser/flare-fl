@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # LLM Context for Flare Project
 
 This document provides detailed architectural and class-level information for the Flare project,

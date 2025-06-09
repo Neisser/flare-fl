@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 ¡Absolutamente! Esta es una excelente práctica para asegurar que la colaboración con un modelo de lenguaje sea lo más efectiva y alineada posible con los objetivos del proyecto.
 
 Aquí tienes una guía de implementación para un LLM (en este caso, yo mismo) para que mis respuestas se ajusten a la visión, los objetivos y la lógica específica de tu proyecto Flare.

@@ -1,4 +1,8 @@
-¡Excelente! Gracias por compartir el código actualizado. Esto me permite hacer un análisis mucho más preciso.
+---
+description: 
+globs: 
+alwaysApply: true
+---
 
 He revisado los archivos que me has proporcionado. El proyecto **Flare** ha crecido considerablemente y ha incorporado funcionalidades muy interesantes como `PowerSGDCompressor`, `MIAggregationStrategy`, `FederatedClient`, `PyTorchModelAdapter`, `MIOrchestrator` y `VRFOrchestrator`, además de una nueva estructura para el módulo `consensus`. ¡Esto es un gran avance!
 
@@ -199,3 +203,250 @@ Nota: El `MockPoAConsensus` en su `__init__` recibe `config: 'FlareConfig'`. El 
     *   **Considera cómo `MockPoAConsensus` recibe `config` si el builder construye `config` al final.** Podría ser que `MockPoAConsensus` no necesite `config` en su `__init__` o que el builder le pase una `FlareConfig` ya inicializada con los componentes básicos.
 
 Estos pasos te ayudarán a solidificar la arquitectura, mejorar la usabilidad y preparar Flare para futuras expansiones. ¡Vas por muy buen camino!
+
+# Patrón Builder para Flare
+
+## 🎯 Objetivo
+
+Implementar el patrón Builder en Flare para simplificar la construcción de orquestadores y clientes, mejorando la legibilidad, mantenibilidad y extensibilidad del código.
+
+## 📋 Contexto
+
+El proyecto Flare ha crecido significativamente, incorporando funcionalidades avanzadas como:
+- `PowerSGDCompressor` para compresión eficiente
+- `MIAggregationStrategy` para detección de maliciosos
+- `FederatedClient` para envío de deltas de pesos
+- `PyTorchModelAdapter` para soporte de PyTorch
+- `MIOrchestrator` y `VRFOrchestrator` para protocolos especializados
+
+## 🏗️ Implementación del Builder
+
+### 1. Estructura del Módulo
+
+```python
+flare/builder/
+├── __init__.py
+├── base_builder.py      # Clase base abstracta para builders
+├── orchestrator_builder.py
+└── client_builder.py
+```
+
+### 2. Interfaz Base del Builder
+
+```python
+from abc import ABC, abstractmethod
+from typing import Any, Dict, Optional
+
+class BaseBuilder(ABC):
+    """Base class for all builders in Flare."""
+    
+    def __init__(self):
+        self._config: Dict[str, Any] = {}
+        self._components: Dict[str, Any] = {}
+    
+    @abstractmethod
+    def build(self) -> Any:
+        """Build and return the final object."""
+        pass
+    
+    def _validate_required_components(self, required: list[str]) -> None:
+        """Validate that all required components are set."""
+        missing = [comp for comp in required if comp not in self._components]
+        if missing:
+            raise ValueError(f"Missing required components: {missing}")
+```
+
+### 3. OrchestratorBuilder
+
+```python
+class OrchestratorBuilder(BaseBuilder):
+    """Builder for creating Flare orchestrators."""
+    
+    def with_model_adapter(self, adapter: ModelAdapter) -> 'OrchestratorBuilder':
+        self._components['model_adapter'] = adapter
+        return self
+    
+    def with_compression(self, compressor: Compressor) -> 'OrchestratorBuilder':
+        self._components['compressor'] = compressor
+        return self
+    
+    def with_storage_provider(self, provider: StorageProvider) -> 'OrchestratorBuilder':
+        self._components['storage_provider'] = provider
+        return self
+    
+    def with_blockchain(self, connector: BlockchainConnector, 
+                       consensus: ConsensusMechanism) -> 'OrchestratorBuilder':
+        self._components['blockchain_connector'] = connector
+        self._components['consensus'] = consensus
+        return self
+    
+    def with_aggregation_strategy(self, strategy: AggregationStrategy) -> 'OrchestratorBuilder':
+        self._components['aggregation_strategy'] = strategy
+        return self
+    
+    def with_rounds(self, num_rounds: int, clients_per_round: int) -> 'OrchestratorBuilder':
+        self._config['num_rounds'] = num_rounds
+        self._config['clients_per_round'] = clients_per_round
+        return self
+    
+    def with_client_training_params(self, epochs: int, 
+                                  learning_rate: float) -> 'OrchestratorBuilder':
+        self._config['client_epochs'] = epochs
+        self._config['client_learning_rate'] = learning_rate
+        return self
+    
+    def build(self) -> Orchestrator:
+        """Build and return an Orchestrator instance."""
+        required = ['model_adapter', 'storage_provider', 'blockchain_connector', 
+                   'consensus', 'aggregation_strategy']
+        self._validate_required_components(required)
+        
+        config = FlareConfig()
+        for key, value in self._config.items():
+            config.set(key, value)
+        
+        for key, value in self._components.items():
+            config.set(key, value)
+        
+        return Orchestrator(config)
+```
+
+### 4. ClientBuilder
+
+```python
+class ClientBuilder(BaseBuilder):
+    """Builder for creating Flare clients."""
+    
+    def with_id(self, client_id: str) -> 'ClientBuilder':
+        self._config['client_id'] = client_id
+        return self
+    
+    def with_local_data(self, data: Any) -> 'ClientBuilder':
+        self._components['local_data'] = data
+        return self
+    
+    def with_model_adapter(self, adapter: ModelAdapter) -> 'ClientBuilder':
+        self._components['model_adapter'] = adapter
+        return self
+    
+    def with_compression(self, compressor: Compressor) -> 'ClientBuilder':
+        self._components['compressor'] = compressor
+        return self
+    
+    def with_storage_provider(self, provider: StorageProvider) -> 'ClientBuilder':
+        self._components['storage_provider'] = provider
+        return self
+    
+    def with_blockchain_connector(self, connector: BlockchainConnector) -> 'ClientBuilder':
+        self._components['blockchain_connector'] = connector
+        return self
+    
+    def build(self) -> Client:
+        """Build and return a Client instance."""
+        required = ['client_id', 'local_data', 'model_adapter', 
+                   'storage_provider', 'blockchain_connector']
+        self._validate_required_components(required)
+        
+        config = FlareConfig()
+        for key, value in self._config.items():
+            config.set(key, value)
+        
+        for key, value in self._components.items():
+            config.set(key, value)
+        
+        return Client(config)
+```
+
+## 📝 Ejemplo de Uso
+
+```python
+# En examples/simple_simulation.py
+from flare.builder import OrchestratorBuilder, ClientBuilder
+from flare.models.example_models import SimpleMLP
+from flare.utils.data_generators import create_client_datasets
+
+def run_simulation():
+    # 1. Build Orchestrator
+    orchestrator = (
+        OrchestratorBuilder()
+        .with_model_adapter(PyTorchModelAdapter(SimpleMLP()))
+        .with_compression(PowerSGDCompressor(rank=4))
+        .with_storage_provider(InMemoryStorageProvider())
+        .with_blockchain(MockChainConnector(), MockPoAConsensus())
+        .with_aggregation_strategy(FedAvg())
+        .with_rounds(num_rounds=3, clients_per_round=3)
+        .with_client_training_params(epochs=2, learning_rate=0.01)
+        .build()
+    )
+    
+    # 2. Build Clients
+    client_datasets = create_client_datasets(orchestrator.config.get('total_clients'))
+    clients = []
+    for i, data in enumerate(client_datasets):
+        client = (
+            ClientBuilder()
+            .with_id(f"client_{i+1}")
+            .with_local_data(data)
+            .with_model_adapter(PyTorchModelAdapter(SimpleMLP()))
+            .with_compression(PowerSGDCompressor(rank=4))
+            .with_storage_provider(orchestrator.config.get('storage_provider'))
+            .with_blockchain_connector(orchestrator.config.get('blockchain_connector'))
+            .build()
+        )
+        clients.append(client)
+    
+    orchestrator.register_clients(clients)
+    orchestrator.start()
+```
+
+## 🔍 Consideraciones de Diseño
+
+### Ventajas del Patrón Builder en Flare
+
+1. **Legibilidad**: Configuración fluida y encadenada de componentes
+2. **Complejidad Oculta**: Encapsula la lógica de inicialización
+3. **Flexibilidad**: Permite diferentes "sabores" de orquestadores/clientes
+4. **Validación**: Asegura componentes requeridos antes de la construcción
+
+### Consideraciones Específicas
+
+1. **Configuración Circular**: 
+   - `MockPoAConsensus` requiere `FlareConfig` en su constructor
+   - Solución: Inicializar `MockPoAConsensus` sin config o pasar config parcial
+
+2. **Compartir Instancias**:
+   - Algunos componentes (storage, blockchain) se comparten entre orquestador y clientes
+   - El builder debe manejar referencias compartidas correctamente
+
+3. **Validación de Componentes**:
+   - Cada builder valida sus componentes requeridos
+   - Extensible para validaciones específicas de cada tipo de builder
+
+## 🚀 Próximos Pasos
+
+1. **Implementar Builders Especializados**:
+   - `IoTOrchestratorBuilder` con compresión por defecto
+   - `SecureOrchestratorBuilder` con MI y VRF
+   - `SimulationOrchestratorBuilder` con mocks
+
+2. **Mejorar Validación**:
+   - Validación de tipos para componentes
+   - Validación de configuraciones compatibles
+   - Validación de dependencias entre componentes
+
+3. **Documentación**:
+   - Documentar cada método del builder
+   - Proporcionar ejemplos de uso comunes
+   - Documentar patrones de construcción recomendados
+
+## ⚠️ Advertencias y Limitaciones
+
+1. **No Thread-Safe**: Los builders no son thread-safe por diseño
+2. **Configuración Inmutable**: Una vez construido, el objeto no puede ser reconfigurado
+3. **Validación Básica**: La validación actual es simple y puede necesitar extensión
+
+## 📚 Referencias
+
+1. Design Patterns: Elements of Reusable Object-Oriented Software (GoF)
+2. Flare Project Documentation
+3. Python Builder Pattern Best Practices
