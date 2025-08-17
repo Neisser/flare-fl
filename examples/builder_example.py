@@ -64,7 +64,7 @@ def demo_basic_orchestrator():
     # Create orchestrator using builder pattern - much cleaner!
     orchestrator = (
         OrchestratorBuilder()
-        .with_model_adapter(PyTorchModelAdapter(SimpleMLP()))
+        .with_model_adapter(PyTorchModelAdapter(SimpleMLP().to('cuda' if torch.cuda.is_available() else 'cpu')))
         .with_compressor(PowerSGDCompressor(rank=4))
         .with_storage_provider(storage)
         .with_blockchain(MockChainConnector())
@@ -96,7 +96,7 @@ def demo_mi_orchestrator():
     # MI Orchestrator with automatic robust aggregation
     orchestrator = (
         OrchestratorBuilder()
-        .with_model_adapter(PyTorchModelAdapter(SimpleMLP()))
+        .with_model_adapter(PyTorchModelAdapter(SimpleMLP().to('cuda' if torch.cuda.is_available() else 'cpu')))
         .with_compressor(PowerSGDCompressor(rank=4))
         .with_storage_provider(storage)
         .with_blockchain(MockChainConnector())
@@ -125,7 +125,7 @@ def demo_vrf_orchestrator():
     # VRF Orchestrator with committee-based validation
     orchestrator = (
         OrchestratorBuilder()
-        .with_model_adapter(PyTorchModelAdapter(SimpleMLP()))
+        .with_model_adapter(PyTorchModelAdapter(SimpleMLP().to('cuda' if torch.cuda.is_available() else 'cpu')))
         .with_compressor(PowerSGDCompressor(rank=4))
         .with_storage_provider(storage)
         .with_blockchain(MockChainConnector())
@@ -162,7 +162,7 @@ def demo_clients_creation(storage):
             ClientBuilder()
             .with_id(f"client_{i + 1}")
             .with_local_data((X, y))
-            .with_model_adapter(PyTorchModelAdapter(SimpleMLP()))
+            .with_model_adapter(PyTorchModelAdapter(SimpleMLP().to('cuda' if torch.cuda.is_available() else 'cpu')))
             .with_compressor(compressor)
             .with_storage_provider(storage)
             .with_blockchain_connector(MockChainConnector())
@@ -187,7 +187,7 @@ def demo_configuration_flexibility():
     # Example 1: Minimal configuration (with defaults)
     simple_orchestrator = (
         OrchestratorBuilder()
-        .with_model_adapter(PyTorchModelAdapter(SimpleMLP()))
+        .with_model_adapter(PyTorchModelAdapter(SimpleMLP().to('cuda' if torch.cuda.is_available() else 'cpu')))
         .with_storage_provider(InMemoryStorageProvider())
         .build()  # Uses defaults for everything else
     )
@@ -201,7 +201,7 @@ def demo_configuration_flexibility():
     # Example 2: Highly customized configuration
     custom_orchestrator = (
         OrchestratorBuilder()
-        .with_model_adapter(PyTorchModelAdapter(SimpleMLP()))
+        .with_model_adapter(PyTorchModelAdapter(SimpleMLP().to('cuda' if torch.cuda.is_available() else 'cpu')))
         .with_compressor(PowerSGDCompressor(rank=8, power_iterations=2))
         .with_storage_provider(InMemoryStorageProvider())
         .with_blockchain(MockChainConnector())

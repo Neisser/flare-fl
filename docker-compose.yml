@@ -1,0 +1,11 @@
+services:
+  python-env:
+    image: python:3.12
+    container_name: python-dev
+    working_dir: /app
+    volumes:
+      - ../:/app
+    stdin_open: true   # same as -i
+    tty: true          # same as -t
+    command: ["sleep", "infinity"]
+    gpus: all
