@@ -1,0 +1,36 @@
+{
+    "name": "Flare FL Development (Custom)",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },
+    "workspaceFolder": "/workspaces/flare-fl",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {}
+    },
+    "runArgs": [
+        "--gpus", "all",
+        "--shm-size", "8g"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.flake8",
+                "ms-python.pylint",
+                "ms-python.black-formatter",
+                "ms-python.isort"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.linting.enabled": true,
+                "python.linting.flake8Enabled": true,
+                "python.linting.pylintEnabled": true,
+                "python.formatting.provider": "black",
+                "python.sortImports.args": ["--profile", "black"]
+            }
+        }
+    },
+    "postCreateCommand": "chmod +x .devcontainer/setup.sh && .devcontainer/setup.sh",
+    "postStartCommand": "echo '🚀 Flare FL Ready!' && python -c \"import torch; print(f'PyTorch {torch.__version__} - CUDA: {torch.cuda.is_available()}')\""
+}

@@ -11,10 +11,9 @@ authors = [
 description = "A Python library for federated learning with blockchain and IoT focus."
 readme = "README.md"
 requires-python = ">=3.8"
-license = { file="LICENSE" }
+license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
